@@ -51,6 +51,13 @@ async function main() {
     'basepath:"/"',
   );
 
+  // Static Pages has no SSR hydration payload; skip the Start hydration bootstrap call
+  // that can throw invariants when initial matches are absent.
+  patchedEntrySource = patchedEntrySource.replace(
+    /(\w+)\.stores\.matchesId\.get\(\)\.length\|\|await\s+\w+\(\1\),\1/g,
+    "$1",
+  );
+
   if (patchedEntrySource === entrySource) {
     throw new Error("Could not patch entry bundle: hydrateRoot(document,...) not found.");
   }
