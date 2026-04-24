@@ -2,10 +2,18 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
-const clientDir = path.join(root, "dist", "client");
-const assetsDir = path.join(clientDir, "assets");
+const sourceClientDir = path.join(root, "dist", "client");
+const publishDir = path.join(root, "build");
+
+async function preparePublishDir() {
+  await fs.rm(publishDir, { recursive: true, force: true });
+  await fs.cp(sourceClientDir, publishDir, { recursive: true });
+}
 
 async function main() {
+  await preparePublishDir();
+
+  const assetsDir = path.join(publishDir, "assets");
   const entries = await fs.readdir(assetsDir, { withFileTypes: true });
   const buildVersion = Date.now().toString();
 
@@ -20,7 +28,7 @@ async function main() {
   }
 
   if (jsCandidates.length === 0) {
-    throw new Error("Could not find an index-*.js entry chunk in dist/client/assets.");
+    throw new Error("Could not find an index-*.js entry chunk in build/assets.");
   }
 
   // Pick the largest index chunk, which is the runtime entry in this build.
@@ -67,8 +75,8 @@ async function main() {
 </html>
 `;
 
-  await fs.writeFile(path.join(clientDir, "index.html"), html, "utf8");
-  await fs.writeFile(path.join(clientDir, "404.html"), html, "utf8");
+  await fs.writeFile(path.join(publishDir, "index.html"), html, "utf8");
+  await fs.writeFile(path.join(publishDir, "404.html"), html, "utf8");
 
   console.log(`Prepared GitHub Pages HTML with entry: ${entryScript}`);
 }

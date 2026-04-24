@@ -6,11 +6,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "vite build && node scripts/prepare-gh-pages.mjs",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
-    "predeploy": "npm run build && node scripts/prepare-gh-pages.mjs",
-    "deploy": "gh-pages -d dist/client",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
